@@ -1,0 +1,123 @@
+diff --git a/dwl.c b/dwl.c
+index 6c2edb8..24fe342 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -418,27 +418,33 @@ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+ void
+ applybounds(Client *c, struct wlr_box *bbox)
+ {
++	unsigned int gapoffset = 0;
++
++  if (!c->isfloating && !c->isfullscreen) {
++    gapoffset = gappx;
++  }
++
+ 	if (!c->isfullscreen) {
+ 		struct wlr_box min = {0}, max = {0};
+ 		client_get_size_hints(c, &max, &min);
+ 		/* try to set size hints */
+-		c->geom.width = MAX(min.width + (2 * (int)c->bw), c->geom.width);
+-		c->geom.height = MAX(min.height + (2 * (int)c->bw), c->geom.height);
++		c->geom.width = MAX(min.width + (2 * (int)c->bw) + (2 * (int)gapoffset), c->geom.width);
++		c->geom.height = MAX(min.height + (2 * (int)c->bw) + (2 * (int)gapoffset), c->geom.height);
+ 		/* Some clients set their max size to INT_MAX, which does not violate the
+ 		 * protocol but it's unnecesary, as they can set their max size to zero. */
+-		if (max.width > 0 && !(2 * c->bw > INT_MAX - max.width)) /* Checks for overflow */
+-			c->geom.width = MIN(max.width + (2 * c->bw), c->geom.width);
+-		if (max.height > 0 && !(2 * c->bw > INT_MAX - max.height)) /* Checks for overflow */
+-			c->geom.height = MIN(max.height + (2 * c->bw), c->geom.height);
++		if (max.width > 0 && !(2 * c->bw + 2 * gapoffset > INT_MAX - max.width)) /* Checks for overflow */
++			c->geom.width = MIN(max.width + (2 * c->bw) + (2 * gapoffset), c->geom.width);
++		if (max.height > 0 && !(2 * c->bw + 2 * gapoffset > INT_MAX - max.height)) /* Checks for overflow */
++			c->geom.height = MIN(max.height + (2 * c->bw) + (2 * gapoffset), c->geom.height);
+ 	}
+ 
+ 	if (c->geom.x >= bbox->x + bbox->width)
+ 		c->geom.x = bbox->x + bbox->width - c->geom.width;
+ 	if (c->geom.y >= bbox->y + bbox->height)
+ 		c->geom.y = bbox->y + bbox->height - c->geom.height;
+-	if (c->geom.x + c->geom.width + 2 * c->bw <= bbox->x)
++	if (c->geom.x + c->geom.width + 2 * c->bw + 2 * gapoffset <= bbox->x)
+ 		c->geom.x = bbox->x;
+-	if (c->geom.y + c->geom.height + 2 * c->bw <= bbox->y)
++	if (c->geom.y + c->geom.height + 2 * c->bw + 2 * gapoffset <= bbox->y)
+ 		c->geom.y = bbox->y;
+ }
+ 
+@@ -768,12 +774,17 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
+ void
+ commitnotify(struct wl_listener *listener, void *data)
+ {
++	unsigned int gapoffset = 0;
+ 	Client *c = wl_container_of(listener, c, commit);
+ 	struct wlr_box box = {0};
+ 	client_get_geometry(c, &box);
+ 
+-	if (c->mon && !wlr_box_empty(&box) && (box.width != c->geom.width - 2 * c->bw
+-			|| box.height != c->geom.height - 2 * c->bw))
++  if (!c->isfloating && !c->isfullscreen) {
++    gapoffset = gappx;
++  }
++
++	if (c->mon && !wlr_box_empty(&box) && (box.width != c->geom.width - 2 * c->bw - 2 * gapoffset
++			|| box.height != c->geom.height - 2 * c->bw - 2 * gapoffset))
+ 		c->isfloating ? resize(c, c->geom, 1) : arrange(c->mon);
+ 
+ 	/* mark a pending resize as completed */
+@@ -1552,8 +1563,8 @@ mapnotify(struct wl_listener *listener, void *data)
+ 	/* Initialize client geometry with room for border */
+ 	client_set_tiled(c, WLR_EDGE_TOP | WLR_EDGE_BOTTOM | WLR_EDGE_LEFT | WLR_EDGE_RIGHT);
+ 	client_get_geometry(c, &c->geom);
+-	c->geom.width += 2 * c->bw;
+-	c->geom.height += 2 * c->bw;
++	c->geom.width += 2 * c->bw + 2 * gappx;
++	c->geom.height += 2 * c->bw + 2 * gappx;
+ 
+ 	/* Insert this client into client lists. */
+ 	wl_list_insert(&clients, &c->link);
+@@ -1913,25 +1924,34 @@ requeststartdrag(struct wl_listener *listener, void *data)
+ void
+ resize(Client *c, struct wlr_box geo, int interact)
+ {
++	unsigned int gapoffset = 0;
++	unsigned int gapincr = 0;
+ 	struct wlr_box *bbox = interact ? &sgeom : &c->mon->w;
+ 	client_set_bounds(c, geo.width, geo.height);
+ 	c->geom = geo;
+-	applybounds(c, bbox);
+ 
++  if (!c->isfloating && !c->isfullscreen) {
++    gapoffset = gappx;
++    gapincr = gapoffset * 2;
++  }
++
++	applybounds(c, bbox);
++  
+ 	/* Update scene-graph, including borders */
+ 	wlr_scene_node_set_position(&c->scene->node, c->geom.x, c->geom.y);
+-	wlr_scene_node_set_position(&c->scene_surface->node, c->bw, c->bw);
+-	wlr_scene_rect_set_size(c->border[0], c->geom.width, c->bw);
+-	wlr_scene_rect_set_size(c->border[1], c->geom.width, c->bw);
+-	wlr_scene_rect_set_size(c->border[2], c->bw, c->geom.height - 2 * c->bw);
+-	wlr_scene_rect_set_size(c->border[3], c->bw, c->geom.height - 2 * c->bw);
+-	wlr_scene_node_set_position(&c->border[1]->node, 0, c->geom.height - c->bw);
+-	wlr_scene_node_set_position(&c->border[2]->node, 0, c->bw);
+-	wlr_scene_node_set_position(&c->border[3]->node, c->geom.width - c->bw, c->bw);
++	wlr_scene_node_set_position(&c->scene_surface->node, c->bw + gapoffset, c->bw + gapoffset);
++	wlr_scene_rect_set_size(c->border[0], c->geom.width - gapincr, c->bw);
++	wlr_scene_rect_set_size(c->border[1], c->geom.width - gapincr, c->bw);
++	wlr_scene_rect_set_size(c->border[2], c->bw, c->geom.height - 2 * c->bw - gapincr);
++	wlr_scene_rect_set_size(c->border[3], c->bw, c->geom.height - 2 * c->bw - gapincr);
++	wlr_scene_node_set_position(&c->border[0]->node, gapoffset, gapoffset);
++	wlr_scene_node_set_position(&c->border[1]->node, gapoffset, c->geom.height - c->bw - gapoffset);
++	wlr_scene_node_set_position(&c->border[2]->node, gapoffset, c->bw + gapoffset);
++	wlr_scene_node_set_position(&c->border[3]->node, c->geom.width - c->bw - gapoffset, c->bw + gapoffset);
+ 
+ 	/* this is a no-op if size hasn't changed */
+-	c->resize = client_set_size(c, c->geom.width - 2 * c->bw,
+-			c->geom.height - 2 * c->bw);
++	c->resize = client_set_size(c, c->geom.width - 2 * c->bw - gapincr,
++			c->geom.height - 2 * c->bw - gapincr);
+ }
+ 
+ void
