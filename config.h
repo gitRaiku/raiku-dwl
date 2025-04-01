@@ -53,9 +53,6 @@ static const Rule rules[] = {
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[M]",      centeredmaster },
-	{ "[]=",      tile },
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
 };
 
 /* monitors */
@@ -70,7 +67,7 @@ static const MonitorRule monrules[] = {
 	//{ "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
 
 	*/
-	{ "eDP-1",    0.5f,  1,      1.33f,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1},
+	{ "DP-1",    0.5f,  1,      1.0f,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0, 240.0f, 1, 0},
 };
 
 /* keyboard */
@@ -119,7 +116,7 @@ static const uint32_t send_events_mode = LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
 LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT
 LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE
 */
-static const enum libinput_config_accel_profile accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
+static const enum libinput_config_accel_profile accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
 static const double accel_speed = 0.0;
 
 /* You can choose between:
@@ -159,11 +156,6 @@ static const char *volUP[]       = { "chvol", "+", NULL };
 static const char *volDOWN[]     = { "chvol", "-", NULL };
 static const char *volUPUP[]     = { "chvol", "++", NULL };
 static const char *volDOWNDOWN[] = { "chvol", "--", NULL };
-
-static const char *brtUP[]      = { "brightnessctl", "s", "+30%", NULL };
-static const char *brtDOWN[]    = { "brightnessctl", "s", "30%-", NULL };
-static const char *brtsUP[]     = { "brightnessctl", "s", "+1%", NULL };
-static const char *brtsDOWN[]   = { "brightnessctl", "s", "1%-", NULL };
 
 static const char *chadcmd[]  = { "mpv", "/home/raiku/Misc/Downloads/chad-1.mp4", "--loop", NULL };
 static const char *reliefcmd[]  = { "mpv", "/home/raiku/Misc/Downloads/Huge_Ship_Shaft_Forging_and_Machining_Process.webm", "--loop", NULL };
@@ -211,10 +203,6 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XKB_KEY_M,            spawn,            {.v = moyai } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_E,            spawn,            {.v = dufen } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_F,            spawn,            {.v = fumen } },
-	{ MODKEY|ControlMask,           XKB_KEY_x,            spawn,            {.v = brtDOWN } },
-	{ MODKEY|ControlMask,           XKB_KEY_c,            spawn,            {.v = brtUP } },
-	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_X,            spawn,            {.v = brtsDOWN } },
-	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_C,            spawn,            {.v = brtsUP } },
 	{ MODKEY|ControlMask,           XKB_KEY_s,            spawn,            {.v = volDOWN } },
 	{ MODKEY|ControlMask,           XKB_KEY_d,            spawn,            {.v = volUP } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_S,            spawn,            {.v = volDOWNDOWN } },
@@ -259,6 +247,7 @@ static const Key keys[] = {
 	//{ MODKEY|WLR_MODIFIER_SHIFT,    XKB_KEY_Q,          quit,           {0} },
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
+	{ WLR_MODIFIER_ALT|WLR_MODIFIER_LOGO|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT, XKB_KEY_Escape, togglepassthrough, {0} },
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
 #define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
 	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),
