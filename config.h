@@ -173,7 +173,8 @@ static const char *dufen[]  = { "swaybg", "-i", "/home/raiku/Misc/Downloads/Dufe
 static const char *biaoqing[]  = { "biaoqing", NULL };
 static const char *cacafire[]  = { "cacafire", NULL };
 static const char *clipcell[]  = { "clipcel", NULL };
-static const char *necc[]  = { "neco", NULL };
+static const char *necc[]  = { "nec", NULL };
+static const char *woomer[]  = { "woomer", NULL };
 
 static const char *r2kcmd[]     = { "r2k", NULL };
 
