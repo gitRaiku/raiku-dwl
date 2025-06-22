@@ -67,7 +67,9 @@ static const MonitorRule monrules[] = {
 	//{ "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
 
 	*/
-	{ "DP-1",    0.5f,  1,      1.0f,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, -1, -1, 0, 0, 240.0f, 1, 0},
+
+	{ "eDP-1",    0.5f,  1,      1.33f,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0,  -1,  -1, 240.0f, 1, 0},
+  { "HDMI-A-1", 0.5f,  1,      1.00f,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL, 0, 0,  4096, 2160, 60.0f, 1, 0},
 };
 
 /* keyboard */
@@ -157,6 +159,11 @@ static const char *volDOWN[]     = { "chvol", "-", NULL };
 static const char *volUPUP[]     = { "chvol", "++", NULL };
 static const char *volDOWNDOWN[] = { "chvol", "--", NULL };
 
+static const char *brtUP[]      = { "brightnessctl", "s", "+30%", NULL };
+static const char *brtDOWN[]    = { "brightnessctl", "s", "30%-", NULL };
+static const char *brtsUP[]     = { "brightnessctl", "s", "+1%", NULL };
+static const char *brtsDOWN[]   = { "brightnessctl", "s", "1%-", NULL };
+
 static const char *chadcmd[]  = { "mpv", "/home/raiku/Misc/Downloads/chad-1.mp4", "--loop", NULL };
 static const char *reliefcmd[]  = { "mpv", "/home/raiku/Misc/Downloads/Huge_Ship_Shaft_Forging_and_Machining_Process.webm", "--loop", NULL };
 static const char *yajucmd[]  = { "mpv", "/home/raiku/Misc/Downloads/yaju-1.mp4", NULL };
@@ -174,6 +181,9 @@ static const char *biaoqing[]  = { "biaoqing", NULL };
 static const char *cacafire[]  = { "cacafire", NULL };
 static const char *clipcell[]  = { "clipcel", NULL };
 static const char *necc[]  = { "nec", NULL };
+static const char *necck[]  = { "killall", "neco", NULL };
+static const char *brainrot[]  = { "brainrot", NULL };
+static const char *parkour[]  = { "brainrot", "/home/raiku/Misc/Downloads/1HourMinecraftParkour.webm", "/home/raiku/Misc/Downloads/2HourMinecraftParkour.webm", NULL };
 static const char *woomer[]  = { "woomer", NULL };
 
 static const char *r2kcmd[]     = { "r2k", NULL };
@@ -187,12 +197,14 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XKB_KEY_S,            spawn,            {.v = spotifycmd } },
  	{ MODKEY|ShiftMask,             XKB_KEY_D,            spawn,            {.v = discordcmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_P,            spawn,            {.v = qutecmd } },
+	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_P,            spawn,            {.v = parkour } },
 	{ MODKEY|ShiftMask,             XKB_KEY_O,            spawn,            {.v = qutecmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_G,            spawn,            {.v = gimpcmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_J,            spawn,            {.v = chadcmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_K,            spawn,            {.v = reliefcmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_L,            spawn,            {.v = yajucmd } },
 	{ MODKEY|ShiftMask,             XKB_KEY_B,            spawn,            {.v = biaoqing } },
+	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_B,            spawn,            {.v = brainrot } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_L,            spawn,            {.v = cacafire } },
 	{ MODKEY|ShiftMask,             XKB_KEY_H,            spawn,            {.v = walcccmd } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_G,            spawn,            {.v = gamblecore } },
@@ -204,12 +216,18 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XKB_KEY_M,            spawn,            {.v = moyai } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_E,            spawn,            {.v = dufen } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_F,            spawn,            {.v = fumen } },
+	{ MODKEY|ControlMask,           XKB_KEY_x,            spawn,            {.v = brtDOWN } },
+	{ MODKEY|ControlMask,           XKB_KEY_c,            spawn,            {.v = brtUP } },
+	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_X,            spawn,            {.v = brtsDOWN } },
+	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_C,            spawn,            {.v = brtsUP } },
 	{ MODKEY|ControlMask,           XKB_KEY_s,            spawn,            {.v = volDOWN } },
 	{ MODKEY|ControlMask,           XKB_KEY_d,            spawn,            {.v = volUP } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_S,            spawn,            {.v = volDOWNDOWN } },
 	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_D,            spawn,            {.v = volUPUP } },
 	{ MODKEY,                       XKB_KEY_o,            spawn,            {.v = clipcell } },
+	{ MODKEY|ShiftMask,             XKB_KEY_W,            spawn,            {.v = woomer } },
 	{ MODKEY,                       XKB_KEY_n,            spawn,            {.v = necc } },
+	{ MODKEY|ControlMask|ShiftMask, XKB_KEY_N,            spawn,            {.v = necck } },
 	{ MODKEY,                       XKB_KEY_p,            spawn,            {.v = dmenucmd } },
 	{ MODKEY,                       XKB_KEY_i,            spawn,            {.v = r2kcmd } },
   { 0,                            XKB_KEY_Print,        spawn,            {.v = scrn } },
@@ -248,7 +266,7 @@ static const Key keys[] = {
 	//{ MODKEY|WLR_MODIFIER_SHIFT,    XKB_KEY_Q,          quit,           {0} },
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
-	{ WLR_MODIFIER_ALT|WLR_MODIFIER_LOGO|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT, XKB_KEY_Escape, togglepassthrough, {0} },
+	{ WLR_MODIFIER_ALT|WLR_MODIFIER_LOGO|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT, XKB_KEY_P, togglepassthrough, {0} },
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
 #define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
 	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),

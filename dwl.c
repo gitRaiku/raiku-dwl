@@ -730,7 +730,7 @@ buttonpress(struct wl_listener *listener, void *data)
 	keyboard = wlr_seat_get_keyboard(seat);
 	mods = keyboard ? wlr_keyboard_get_modifiers(keyboard) : 0;
 	for (b = buttons; b < END(buttons); b++) {
-		if (b->state == event->state && CLEANMASK(mods) == CLEANMASK(b->mod) &&
+		if ((int)b->state == (int)event->state && CLEANMASK(mods) == CLEANMASK(b->mod) &&
 				event->button == b->button && b->func) {
 			if (passthrough) {
 				if (b->func != togglepassthrough) continue;
@@ -1218,7 +1218,7 @@ createmon(struct wl_listener *listener, void *data)
 	/* This event is raised by the backend when a new output (aka a display or
 	 * monitor) becomes available. */
 	struct wlr_output *wlr_output = data;
-	struct wlr_output_mode *mode = wl_container_of(wlr_output->modes.next, mode, link);
+	//struct wlr_output_mode *mode = wl_container_of(wlr_output->modes.next, mode, link);
 	const MonitorRule *r;
 	size_t i;
 	struct wlr_output_state state;
@@ -1252,6 +1252,7 @@ createmon(struct wl_listener *listener, void *data)
 			wlr_output_state_set_scale(&state, r->scale);
 			wlr_output_state_set_transform(&state, r->rr);
 
+      /*
 			wlr_output_state_set_adaptive_sync_enabled(&state, r->adaptive);
 
 			if(r->mode == -1)
@@ -1263,10 +1264,13 @@ createmon(struct wl_listener *listener, void *data)
 				}
 				wlr_output_state_set_mode(&state, mode);
 			}
+      */
 
 			break;
 		}
 	}
+
+  wlr_output_state_set_mode(&state, wlr_output_preferred_mode(wlr_output));
 
 	/* Set up event listeners */
 	LISTEN(&wlr_output->events.frame, &m->frame, rendermon);
